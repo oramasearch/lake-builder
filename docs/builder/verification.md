@@ -7,14 +7,19 @@ Use Python 3.11 or newer and the pinned Ruff version in `requirements-dev.txt`:
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/ruff check src tests
-.venv/bin/ruff format --check src tests
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
+make proof
 ```
 
 Tests run one suite at a time and create temporary state only under `.proof/` in the
 worktree. They require an ordinary non-root account. There are no compiled static
 or shared-library suites in this Python repository.
+
+`make proof` runs Ruff lint, Ruff's formatting check, and unittest discovery.
+`.github/workflows/ci.yml` runs the same command on macOS with Python 3.14 and
+Linux with Python 3.11. It uses read-only repository permissions and pinned action
+commits. CI does not require production credentials and does not publish images.
+The runtime Docker build context includes only `src/` and `Dockerfile`; tests,
+developer tooling, local proofs, git data and credentials are excluded.
 
 `tests/test_builder.py` serves lake's source and event REST endpoints on loopback.
 Its registry fake checks the exact Basic `lake:<token>` credential, permits only

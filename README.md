@@ -22,10 +22,10 @@ library; Ruff is pinned for development formatting and lint checks.
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/ruff check src tests
-.venv/bin/ruff format --check src tests
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
+make proof
 ```
 
 The native suite uses a local fake lake/registry HTTP server and a fake BuildKit
 process. A real rootless BuildKit image build remains a separate Linux verification.
+GitHub Actions runs this contract suite on macOS/Python 3.14 and Linux/Python 3.11;
+it does not build or publish the private image.
