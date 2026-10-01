@@ -33,7 +33,10 @@ belong to orama-operator#195.
 | `BUILDKITD_FLAGS` | Optional operator-managed daemon flags understood by the upstream daemonless helper. Never populated from untrusted source. |
 
 The registry transport follows `LAKE_URL`: HTTP enables `registry.insecure=true` for
-image and cache operations; HTTPS retains certificate verification. The operator must
+image and cache operations and also writes a `buildkitd.toml` in the private credentials
+directory declaring the lake registry host `http = true`, appended to `BUILDKITD_FLAGS` as
+`--config` (the exporter option alone left cache import/export speaking HTTPS to the plain
+HTTP in-cluster registry); HTTPS retains certificate verification and adds no config. The operator must
 provide REST and registry Service endpoints using the same transport. HTTP credentials
 are suitable only inside the isolated cluster network described below.
 

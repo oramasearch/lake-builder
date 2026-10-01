@@ -538,3 +538,34 @@ class BuilderContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PlainHttpRegistryConfigTest(unittest.TestCase):
+    def test_http_lake_registry_is_declared_plain_http_to_buildkitd(self):
+        from types import SimpleNamespace
+
+        from lake_builder.build import child_environment
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = SimpleNamespace(lake="http://lake-prod.lake.svc:80")
+            env = child_environment(
+                {"PATH": "/bin", "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox"},
+                directory,
+                config,
+            )
+            flags = env["BUILDKITD_FLAGS"]
+            self.assertTrue(flags.startswith("--oci-worker-no-process-sandbox --config "))
+            written = open(os.path.join(directory, "buildkitd.toml")).read()
+            self.assertIn('[registry."lake-prod.lake.svc:80"]', written)
+            self.assertIn("http = true", written)
+
+    def test_https_lake_registry_adds_no_config(self):
+        from types import SimpleNamespace
+
+        from lake_builder.build import child_environment
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = SimpleNamespace(lake="https://lake.example.test")
+            env = child_environment({"PATH": "/bin"}, directory, config)
+            self.assertNotIn("BUILDKITD_FLAGS", env)
+            self.assertFalse(os.path.exists(os.path.join(directory, "buildkitd.toml")))
