@@ -9,7 +9,8 @@ The entrypoint fetches a pinned repository revision through lake REST, builds fo
 cache with a space-scoped credential. It runs as UID/GID `1000:1000`, publishes
 best-effort progress through lake, and prints `{ "digest": "sha256:...", "size": N }`
 as its final stdout line. `size` counts the unique compressed registry content reachable
-from that digest, including manifests.
+from that digest, including manifests. An optional mounted Docker config supplies private
+base-image pull credentials without overriding the lake registry push credential.
 
 See the [builder contract](docs/builder/contract.md) for the environment, security
 boundaries and operator requirements, and [verification](docs/builder/verification.md)

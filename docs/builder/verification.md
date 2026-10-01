@@ -31,10 +31,11 @@ to the fixture's OCI manifest. It is a process fixture, not an image builder.
 Coverage includes pinned revision propagation, context filtering, Dockerfiles outside
 the context, inline Dockerfiles, binary and executable files, source authentication,
 redirect refusal, unsafe paths, build-argument policy, cache scope, registry Basic
-authentication, out-of-prefix refusal, metadata/digest verification, unique byte
-accounting across an index, event failure tolerance, log size/rate limits and
-credential redaction, child credential isolation, SIGTERM cleanup and no success
-JSON on failure.
+authentication, optional base-registry credential merging and push-entry precedence,
+missing and invalid base credential files, out-of-prefix refusal, metadata/digest
+verification, unique byte accounting across an index, event failure tolerance, log
+size/rate limits and credential redaction, child credential isolation, SIGTERM cleanup
+and no success JSON on failure.
 
 ## Manual Linux image build
 

@@ -1,6 +1,7 @@
 """Process fixture for the native contract tests; this does not build an image."""
 
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -31,6 +32,13 @@ def main():
         "env_keys": sorted(os.environ),
         "credential_path": str(credential_path),
         "credential_mode": credential_path.stat().st_mode & 0o777,
+        "credential_keys": sorted(credentials),
+        "credential_auth_hashes": {
+            host: hashlib.sha256(
+                json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            for host, value in credentials["auths"].items()
+        },
         "context": str(context),
         "files": {
             str(file.relative_to(context)): base64.b64encode(file.read_bytes()).decode()

@@ -33,6 +33,11 @@ def encode_manifest(value):
     return digest, content
 
 
+def credential_hash(value):
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
 class FakeLake:
     def __init__(self):
         self.files = {
@@ -206,7 +211,7 @@ class BuilderContractTests(unittest.TestCase):
             "BUILD_ARGS": '{"PYTHON_VERSION":"3.13"}',
             "BUILD_ARG_ALLOW": "PYTHON_VERSION,APP_DEPS,APP_RUNTIME_IMAGE",
         }
-        for key in ("DOCKERFILE", "BUILD_ID"):
+        for key in ("DOCKERFILE", "BUILD_ID", "BASE_REGISTRY_AUTH"):
             self.env.pop(key, None)
 
     def tearDown(self):
@@ -289,6 +294,73 @@ class BuilderContractTests(unittest.TestCase):
         self.assertIn("HTTP 401", result.stderr)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "")
+
+    def test_base_registry_auth_is_merged_with_push_auth_authoritative(self):
+        pull_auth = base64.b64encode(b"pull-user:pull-password-private").decode()
+        pull_credentials = {
+            "auth": pull_auth,
+            "identitytoken": "pull-identity-token-private",
+        }
+        supplied_push_credentials = {"auth": base64.b64encode(b"wrong:push-token").decode()}
+        source = self.root / ".dockerconfigjson"
+        source.write_text(
+            json.dumps(
+                {
+                    "auths": {
+                        "https://index.docker.io/v1/": pull_credentials,
+                        self.lake.host: supplied_push_credentials,
+                    },
+                    "credsStore": "must-not-be-copied",
+                }
+            )
+        )
+        self.env["BASE_REGISTRY_AUTH"] = str(source)
+        self.settings["logs"] = [
+            f"{pull_auth} pull-user:pull-password-private pull-password-private",
+            "pull-identity-token-private",
+        ]
+
+        result = self.run_builder()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            self.trace()["credential_auth_hashes"],
+            {
+                "https://index.docker.io/v1/": credential_hash(pull_credentials),
+                self.lake.host: credential_hash({"auth": encoded_auth(PUSH_TOKEN)}),
+            },
+        )
+        self.assertEqual(self.trace()["credential_keys"], ["auths"])
+        self.assertNotIn("BASE_REGISTRY_AUTH", self.trace()["env_keys"])
+        output = result.stdout + result.stderr + str(self.lake.events)
+        for secret in (
+            pull_auth,
+            "pull-user:pull-password-private",
+            "pull-password-private",
+            "pull-identity-token-private",
+        ):
+            self.assertNotIn(secret, output)
+
+    def test_missing_base_registry_auth_file_keeps_push_only_config(self):
+        self.env["BASE_REGISTRY_AUTH"] = str(self.root / "missing-.dockerconfigjson")
+
+        result = self.run_builder()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            self.trace()["credential_auth_hashes"],
+            {self.lake.host: credential_hash({"auth": encoded_auth(PUSH_TOKEN)})},
+        )
+
+    def test_invalid_base_registry_auth_fails_without_logging_contents(self):
+        source = self.root / ".dockerconfigjson"
+        source.write_text('{"auths":"base-auth-private"}')
+        self.env["BASE_REGISTRY_AUTH"] = str(source)
+
+        result = self.run_builder()
+
+        self.assert_failed_before_build(result, "must contain an auths object")
+        self.assertNotIn("base-auth-private", result.stderr + str(self.lake.events))
 
     def test_disallowed_build_arg_fails_before_source_or_buildkit(self):
         self.env["BUILD_ARGS"] = '{"API_KEY":"must-not-be-logged"}'

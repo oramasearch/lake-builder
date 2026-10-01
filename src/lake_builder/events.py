@@ -17,11 +17,16 @@ class Events:
         secrets = [env.get(name, "") for name in ("SOURCE_TOKEN", "PUSH_TOKEN", "EVENTS_TOKEN")]
         push_auth = "lake:" + env.get("PUSH_TOKEN", "")
         secrets.append(base64.b64encode(push_auth.encode()).decode())
-        self.secrets = sorted((value for value in secrets if value), key=len, reverse=True)
+        self.secrets = []
+        self.add_secrets(secrets)
         self.lines = []
         self.line_bytes = 0
         self.dropped = 0
         self.last_log = float("-inf")
+
+    def add_secrets(self, secrets):
+        values = {*self.secrets, *(value for value in secrets if value)}
+        self.secrets = sorted(values, key=len, reverse=True)
 
     def redact(self, message):
         for secret in self.secrets:

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from .config import BuildError
@@ -24,15 +25,53 @@ def encoded_auth(token):
     return base64.b64encode(("lake:" + token).encode()).decode()
 
 
-def write_credentials(config, root):
+def base_registry_auths(env):
+    source = env.get("BASE_REGISTRY_AUTH", "")
+    if not source:
+        return {}
+    try:
+        document = json.loads(Path(source).read_bytes())
+    except FileNotFoundError:
+        return {}
+    except OSError as error:
+        raise BuildError("BASE_REGISTRY_AUTH cannot be read") from error
+    except (ValueError, UnicodeError) as error:
+        raise BuildError("BASE_REGISTRY_AUTH must contain valid JSON") from error
+    if not isinstance(document, dict) or not isinstance(document.get("auths"), dict):
+        raise BuildError("BASE_REGISTRY_AUTH must contain an auths object")
+    return dict(document["auths"])
+
+
+def credential_secrets(auths):
+    secrets = []
+    for credential in auths.values():
+        if not isinstance(credential, dict):
+            continue
+        secrets.extend(value for value in credential.values() if isinstance(value, str) and value)
+        encoded = credential.get("auth")
+        if not isinstance(encoded, str):
+            continue
+        try:
+            decoded = base64.b64decode(encoded, validate=True).decode()
+        except (ValueError, UnicodeError):
+            continue
+        secrets.append(decoded)
+        _, separator, password = decoded.partition(":")
+        if separator and password:
+            secrets.append(password)
+    return secrets
+
+
+def write_credentials(config, root, env):
     directory = root / "credentials"
     directory.mkdir(mode=0o700)
     path = directory / "config.json"
-    auths = {config.registry: {"auth": encoded_auth(config.push_token)}}
+    auths = base_registry_auths(env)
+    auths[config.registry] = {"auth": encoded_auth(config.push_token)}
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "w") as output:
         json.dump({"auths": auths}, output)
-    return directory
+    return directory, credential_secrets(auths)
 
 
 def registry_scheme(config):
