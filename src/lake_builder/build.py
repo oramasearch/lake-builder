@@ -58,7 +58,9 @@ def child_environment(env, credentials, config=None):
 
 
 def plain_http_registry_config(config, credentials):
-    host = urlsplit(config.lake).netloc
+    # BuildKit matches [registry."<host>"] against the pushed reference's registry host exactly,
+    # so key it on TARGET's registry (lake omits the scheme's default port there).
+    host = getattr(config, "registry", None) or urlsplit(config.lake).netloc
     path = Path(credentials) / "buildkitd.toml"
     path.write_text(f'[registry."{host}"]\n  http = true\n  insecure = true\n')
     return path
