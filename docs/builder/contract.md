@@ -22,6 +22,7 @@ belong to orama-operator#195.
 | `DOCKERFILE` | Repository-relative path, default `<CONTEXT>/Dockerfile`. A path outside the context is fetched separately. For generated content, use `inline:FROM ...`; a value containing a newline is also treated as inline text. |
 | `TARGET` | Required `<registry-host>/<space>/<name>:<tag>`. Commas, schemes, credentials, traversal and BuildKit option injection are rejected. |
 | `PUSH_TOKEN` | Required token accepted by the registry as Basic `lake:<token>`. |
+| `BASE_REGISTRY_AUTH` | Optional path to a mounted `.dockerconfigjson`. When the file is readable, its `auths` entries supply private base-image pull credentials. An unset value or missing file preserves the push-only behavior. |
 | `CACHE_REF` | Required registry cache reference, normally `<registry-host>/<space>/cache/<name>`. It must use the target's registry and space and must not overwrite the image target. |
 | `BUILD_ARGS` | JSON object of string values; default `{}`. Values are passed as individual BuildKit arguments without shell evaluation. |
 | `BUILD_ARG_ALLOW` | Comma-separated allowed names; default `PYTHON_VERSION,APP_DEPS,APP_RUNTIME_IMAGE`. An explicitly empty value allows no arguments. Unknown names or nonstring values fail before source retrieval and BuildKit startup. This is operator policy, not a field the source repository can modify. |
@@ -37,17 +38,27 @@ provide REST and registry Service endpoints using the same transport. HTTP crede
 are suitable only inside the isolated cluster network described below.
 
 The builder creates a private per-run `DOCKER_CONFIG` directory regardless of any inherited
-value. Its `config.json` has mode `0600` and contains exactly:
+value. Its `config.json` has mode `0600`. Without `BASE_REGISTRY_AUTH`, it contains:
 
 ```json
 {"auths":{"<registry-host>":{"auth":"<base64 of lake:PUSH_TOKEN>"}}}
 ```
 
+When `BASE_REGISTRY_AUTH` names a readable file, the builder copies only that Docker
+config's `auths` object into the private config, then writes the lake registry entry
+shown above. The scoped lake push entry therefore replaces any imported entry with the
+same registry host. Other top-level settings, including credential-store configuration,
+are not copied. A missing file is treated like an unset value. A readable file with
+invalid JSON or without an `auths` object fails the build before BuildKit starts.
+
 This directory is outside both BuildKit local inputs. The source token, push token and
 event token are not passed in the child process environment or its arguments. BuildKit
-receives the push credential through the Docker config. No `--secret` or `--ssh` inputs
-are created. Build arguments are not secret channels: they may appear in build output,
-image history and cache, so the operator must not pass credentials as argument values.
+receives push and optional base-image pull credentials through the Docker config. The
+config path and `BASE_REGISTRY_AUTH` are not passed to BuildKit's child environment.
+Imported credential values are added to progress-log redaction and are never written to
+events or stderr. No `--secret` or `--ssh` inputs are created. Build arguments are not
+secret channels: they may appear in build output, image history and cache, so the operator
+must not pass credentials as argument values.
 
 ## Source materialization
 

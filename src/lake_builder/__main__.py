@@ -23,7 +23,8 @@ def execute(config, env, events):
         root = Path(temporary)
         events.phase("fetching")
         context, dockerfiles = fetch_source(config, root)
-        credentials = write_credentials(config, root)
+        credentials, credential_secrets = write_credentials(config, root, env)
+        events.add_secrets(credential_secrets)
         metadata = root / "metadata.json"
         events.phase("building")
         run_build(config, context, dockerfiles, credentials, metadata, env, events)
