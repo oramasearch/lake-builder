@@ -4,6 +4,8 @@ import os
 import selectors
 import signal
 import subprocess
+from pathlib import Path
+from urllib.parse import urlsplit
 
 from .config import BuildError
 from .registry import registry_scheme
@@ -40,12 +42,26 @@ def build_command(config, context, dockerfiles, metadata):
     return command
 
 
-def child_environment(env, credentials):
+def child_environment(env, credentials, config=None):
     # Do not inherit tokens, arbitrary frontend options, proxy credentials, or build args.
     names = ("PATH", "HOME", "USER", "XDG_RUNTIME_DIR", "TMPDIR", "BUILDKITD_FLAGS")
     result = {name: env[name] for name in names if name in env}
     result["DOCKER_CONFIG"] = str(credentials)
+    if config is not None and registry_scheme(config) == "http":
+        # registry.insecure on the exporters is not enough: cache import/export still speaks
+        # https to the in-cluster lake registry. Tell buildkitd the host is plain HTTP.
+        flags = result.get("BUILDKITD_FLAGS", "")
+        result["BUILDKITD_FLAGS"] = (
+            f"{flags} --config {plain_http_registry_config(config, credentials)}".strip()
+        )
     return result
+
+
+def plain_http_registry_config(config, credentials):
+    host = urlsplit(config.lake).netloc
+    path = Path(credentials) / "buildkitd.toml"
+    path.write_text(f'[registry."{host}"]\n  http = true\n  insecure = true\n')
+    return path
 
 
 def progress_line(raw, events, pushing):
@@ -104,7 +120,7 @@ def run_build(config, context, dockerfiles, credentials, metadata, env, events):
     try:
         process = subprocess.Popen(
             command,
-            env=child_environment(env, credentials),
+            env=child_environment(env, credentials, config),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             start_new_session=True,
