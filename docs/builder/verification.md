@@ -45,8 +45,7 @@ image build and a real rootless push must be checked on an approved Linux/cluste
 lane after review. No image is built or published by the native suite.
 
 1. Have cluster BuildKit build this repository's `Dockerfile` at the reviewed commit
-   and publish `oramasearch/lake-builder` privately. Verify an anonymous image read
-   still returns 404. Do not publish from the local development host.
+   and publish it to your image repository. Do not publish from a local development host.
 2. In a disposable lake repository, commit `Dockerfile` containing `FROM scratch`
    and `COPY hello /hello`, plus a text file `hello`. Record its immutable revision.
 3. Run the image as UID 1000 with the environment in [the contract](contract.md),

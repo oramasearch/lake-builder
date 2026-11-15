@@ -548,7 +548,7 @@ class PlainHttpRegistryConfigTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             config = SimpleNamespace(
-                lake="http://lake-prod.lake.svc:80", registry="lake-prod.lake.svc"
+                lake="http://lake.example.svc:80", registry="lake.example.svc"
             )
             env = child_environment(
                 {"PATH": "/bin", "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox"},
@@ -558,7 +558,7 @@ class PlainHttpRegistryConfigTest(unittest.TestCase):
             flags = env["BUILDKITD_FLAGS"]
             self.assertTrue(flags.startswith("--oci-worker-no-process-sandbox --config "))
             written = open(os.path.join(directory, "buildkitd.toml")).read()
-            self.assertIn('[registry."lake-prod.lake.svc"]', written)
+            self.assertIn('[registry."lake.example.svc"]', written)
             self.assertIn("http = true", written)
 
     def test_https_lake_registry_adds_no_config(self):
