@@ -1,0 +1,123 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:c9d5b780-8a5a-5cfe-a6f1-92a8d6bf8dbc",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-15T17:24:36Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "tools/sbom.py"
+        },
+        {
+          "type": "application",
+          "name": "syft"
+        }
+      ]
+    },
+    "supplier": {
+      "name": "OramaSearch, Inc."
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "DocumentRoot",
+      "type": "library",
+      "name": "lake-builder",
+      "version": "be93b5ab0b1a",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:docker/moby/buildkit@v0.33.0-rootless?package-id=Image-moby-buildkit-b5a63fc90e18a273",
+      "type": "library",
+      "name": "moby/buildkit",
+      "version": "v0.33.0-rootless",
+      "purl": "pkg:docker/moby/buildkit@v0.33.0-rootless",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:pypi/ruff@0.11.13?package-id=Package-python-ruff-9f25210d08cbeccd",
+      "type": "library",
+      "name": "ruff",
+      "version": "0.11.13",
+      "cpe": "cpe:2.3:a:python-ruff:python-ruff:0.11.13:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/ruff@0.11.13",
+      "properties": [
+        {
+          "name": "syft:package:language",
+          "value": "python"
+        },
+        {
+          "name": "syft:package:type",
+          "value": "python"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python-ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python-ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "DocumentRoot",
+      "dependsOn": [
+        "pkg:docker/moby/buildkit@v0.33.0-rootless?package-id=Image-moby-buildkit-b5a63fc90e18a273"
+      ]
+    }
+  ]
+}
