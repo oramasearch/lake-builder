@@ -5,7 +5,7 @@ The image a lake in-cluster build Job runs: rootless BuildKit in daemonless mode
 Private. Its image is published **private** as `oramasearch/lake-builder` on Docker Hub.
 
 The entrypoint fetches a pinned repository revision through lake REST, builds for
-`linux/amd64` using `moby/buildkit:v0.33.0-rootless`, and pushes the image and registry
+`linux/amd64` using `moby/buildkit:v0.33.0-rootless`, pinned by digest in the Dockerfile, and pushes the image and registry
 cache with a space-scoped credential. It runs as UID/GID `1000:1000`, publishes
 best-effort progress through lake, and prints `{ "digest": "sha256:...", "size": N }`
 as its final stdout line. `size` counts the unique compressed registry content reachable
