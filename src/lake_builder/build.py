@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Run one ephemeral rootless BuildKit daemon, build through buildctl, and drain progress.
 
 The image is built on scratch, so there is no shell for upstream's buildctl-daemonless.sh.

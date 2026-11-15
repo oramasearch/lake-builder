@@ -32,3 +32,9 @@ make proof
 The native suite uses a local fake lake/registry HTTP server and a fake BuildKit
 process. A real rootless BuildKit image build remains a separate Linux verification.
 The suite runs on macOS and Linux with Python 3.11 or newer; it does not build or publish the image.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Third-party components and their licenses are in
+[THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES). Contributions are welcome under the Developer
+Certificate of Origin; see [CONTRIBUTING.md](CONTRIBUTING.md).

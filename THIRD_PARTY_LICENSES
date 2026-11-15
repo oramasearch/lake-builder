@@ -1,0 +1,18 @@
+Third-party software in lake-builder
+
+lake-builder is licensed under the MIT License (see LICENSE). It includes or uses the components
+below, each under its own license. This file is generated; do not edit it by hand.
+Generated with: a review of pyproject.toml (no runtime dependencies) and the Dockerfile
+From: pyproject.toml and the Dockerfile
+
+Summary
+
+No third-party Python package: the code uses the Python standard library only.
+
+Container base image
+
+The image is built FROM moby/buildkit:v0.33.0-rootless (https://github.com/moby/buildkit,
+Apache-2.0), an Alpine Linux image, and adds Alpine's python3 (PSF-2.0) and ca-certificates
+(MPL-2.0 and others) packages with apk. Alpine packages keep their own licenses (some GPL, such as
+busybox and musl's tools; musl itself is MIT); their sources are published by Alpine at
+https://gitlab.alpinelinux.org/alpine/aports. The image is not part of this repository's source.
