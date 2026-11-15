@@ -1,7 +1,8 @@
 # Build Job contract
 
 One invocation performs one build. The image derives from
-`moby/buildkit:v0.33.0-rootless`, adds Python and CA certificates, and returns to the
+`moby/buildkit:v0.33.0-rootless`, pinned by its multi-platform index digest
+(`sha256:80b15f07…`), adds Python and CA certificates at pinned versions, and returns to the
 base image's numeric UID/GID `1000:1000`. The entrypoint rejects UID 0. Upstream
 provides `buildctl-daemonless.sh` and RootlessKit; no Docker daemon or liquid client
 is required. Python runtime code has no third-party dependencies.
@@ -147,3 +148,24 @@ documents its process-isolation tradeoff; if the operator requires that flag for
 Kubernetes, it must provide the surrounding dedicated Job/namespace isolation.
 See upstream's [rootless deployment documentation](https://github.com/moby/buildkit/blob/v0.33.0/docs/rootless.md)
 and [daemonless helper](https://github.com/moby/buildkit/blob/v0.33.0/examples/buildctl-daemonless/buildctl-daemonless.sh).
+
+## Pinned inputs (lake-builder#10)
+
+| Input | Version | Pin |
+|---|---|---|
+| `moby/buildkit` | `v0.33.0-rootless` | `sha256:80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef` (index digest) |
+| Alpine (in that base) | `3.23.5` | read from the base layer's `/etc/os-release` |
+| `python3` | Alpine v3.23 `main` | `3.12.16-r0` |
+| `ca-certificates` | Alpine v3.23 `main` | `20261020-r0` |
+
+The package versions are the same for `x86_64` and `aarch64`. Their dependencies come from the same
+v3.23 branch and are not pinned one by one. Alpine keeps only the newest revision of a package in a
+branch, so when v3.23 publishes a new one the build fails until the pin moves. To move a pin, read
+the values without building, and change them in a reviewed commit:
+
+```sh
+docker buildx imagetools inspect moby/buildkit:<tag> | grep '^Digest:'
+# the Alpine release: the first layer's etc/os-release, or the ADD alpine-minirootfs-<v> line of the image config history
+curl -sL https://dl-cdn.alpinelinux.org/alpine/v3.23/main/x86_64/APKINDEX.tar.gz | tar -xzO APKINDEX \
+  | awk 'BEGIN{RS=""} /\nP:(python3|ca-certificates)\n/' | grep -E '^(P|V):'
+```
