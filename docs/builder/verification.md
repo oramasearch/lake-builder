@@ -24,9 +24,12 @@ developer tooling, local proofs, git data and credentials are excluded.
 `tests/test_builder.py` serves lake's source and event REST endpoints on loopback.
 Its registry fake checks the exact Basic `lake:<token>` credential, permits only
 the token's `alpha/` prefix, and returns `403 DENIED` for `beta/`. The CLI runs in
-a separate process against that server. `tests/fixtures/buildctl-daemonless.py`
+a separate process against that server. `tests/fixtures/buildctl.py`
 records the build inputs, attempts target/cache writes, and emits metadata pointing
-to the fixture's OCI manifest. It is a process fixture, not an image builder.
+to the fixture's OCI manifest. `tests/fixtures/buildkitd.py` and `tests/fixtures/rootlesskit.py`
+stand in for the daemon: the fake daemon records its arguments and environment, marks
+readiness by creating its socket path, and records the SIGTERM that stops it. These are
+process fixtures, not an image builder.
 
 Coverage includes pinned revision propagation, context filtering, Dockerfiles outside
 the context, inline Dockerfiles, binary and executable files, source authentication,
@@ -35,7 +38,21 @@ authentication, optional base-registry credential merging and push-entry precede
 missing and invalid base credential files, out-of-prefix refusal, metadata/digest
 verification, unique byte accounting across an index, event failure tolerance, log
 size/rate limits and credential redaction, child credential isolation, SIGTERM cleanup
-and no success JSON on failure.
+and no success JSON on failure. Daemon coverage: RootlessKit wraps `buildkitd`,
+`BUILDKITD_FLAGS` and the plain-HTTP `--config` reach the daemon, client and daemon share
+the socket address, tokens stay out of the daemon environment, a daemon that exits or never
+listens fails the build with its log reported, and the daemon is stopped after success,
+build failure and SIGTERM.
+
+## Image contents check
+
+```sh
+make image-check
+```
+
+This builds the image for the host platform and runs `tools/image-files.py` on it. Every
+file must belong to a component listed in [image contents](image.md). Any other file fails
+the check. It needs Docker, and nothing in the image runs.
 
 ## Manual Linux image build
 
@@ -45,8 +62,7 @@ image build and a real rootless push must be checked on an approved Linux/cluste
 lane after review. No image is built or published by the native suite.
 
 1. Have cluster BuildKit build this repository's `Dockerfile` at the reviewed commit
-   and publish `oramasearch/lake-builder` privately. Verify an anonymous image read
-   still returns 404. Do not publish from the local development host.
+   and publish it to your image repository. Do not publish from a local development host.
 2. In a disposable lake repository, commit `Dockerfile` containing `FROM scratch`
    and `COPY hello /hello`, plus a text file `hello`. Record its immutable revision.
 3. Run the image as UID 1000 with the environment in [the contract](contract.md),

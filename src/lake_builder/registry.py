@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Registry credentials and the exact compressed bytes reachable from an image digest."""
 
 import base64

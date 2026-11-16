@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """One build per process; only the final result is written to stdout."""
 
 import json
@@ -7,6 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from . import __version__
 from .build import run_build
 from .config import BuildError, Config
 from .events import Events
@@ -27,7 +30,7 @@ def execute(config, env, events):
         events.add_secrets(credential_secrets)
         metadata = root / "metadata.json"
         events.phase("building")
-        run_build(config, context, dockerfiles, credentials, metadata, env, events)
+        run_build(config, context, dockerfiles, credentials, metadata, env, events, root)
         digest = metadata_digest(metadata)
         size = image_size(config, digest)
     result = {"digest": digest, "size": size}
@@ -37,6 +40,9 @@ def execute(config, env, events):
 
 
 def main():
+    if sys.argv[1:] == ["--version"]:
+        print(f"lake-builder {__version__}", flush=True)
+        return 0
     events = None
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)

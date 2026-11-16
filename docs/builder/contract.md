@@ -1,10 +1,12 @@
 # Build Job contract
 
-One invocation performs one build. The image derives from
-`moby/buildkit:v0.33.0-rootless`, adds Python and CA certificates, and returns to the
-base image's numeric UID/GID `1000:1000`. The entrypoint rejects UID 0. Upstream
-provides `buildctl-daemonless.sh` and RootlessKit; no Docker daemon or liquid client
-is required. Python runtime code has no third-party dependencies.
+One invocation performs one build. The image is `scratch` with static BuildKit v0.33.0
+(`buildkitd`, `buildctl`, `buildkit-runc`), RootlessKit, the uid-map helpers, a musl CPython
+and CA certificates; [image contents](image.md) lists every file and its licence. It runs as
+numeric UID/GID `1000:1000`, and the entrypoint rejects UID 0. `--version` prints
+`lake-builder <version>` and exits without reading the environment. The entrypoint starts its own
+ephemeral rootless daemon; no shell, Docker daemon or liquid client is required. Python
+runtime code has no third-party dependencies.
 
 This is the builder side of lake-builder#1. Lake's token minting, event forwarding,
 and registry authorization belong to lake#295; Job creation and environment injection
@@ -30,7 +32,8 @@ belong to orama-operator#195.
 | `EVENTS_TOPIC` | `build-events.<build_id>`; the suffix supplies `build_id`. No request is sent to Zetta. |
 | `BUILD_ID` | Alternative explicit build identifier. If both this and `EVENTS_TOPIC` are supplied they must agree. |
 | `EVENTS_URL` | Legacy input is unused. Events always go to `LAKE_URL`, per the lake-mediated contract. |
-| `BUILDKITD_FLAGS` | Optional operator-managed daemon flags understood by the upstream daemonless helper. Never populated from untrusted source. |
+| `BUILDKITD_FLAGS` | Optional operator-managed `buildkitd` flags, split on whitespace (no quoting) as upstream's daemonless helper did. Never populated from untrusted source. |
+| `XDG_RUNTIME_DIR` | Absolute directory for the daemon socket, `$XDG_RUNTIME_DIR/buildkit/buildkitd.sock`. The image sets `/run/user/1000`; a relative or empty value fails the build before the daemon starts. |
 
 The registry transport follows `LAKE_URL`: HTTP enables `registry.insecure=true` for
 image and cache operations and also writes a `buildkitd.toml` in the private credentials
@@ -93,12 +96,22 @@ the builder does not scan committed content for secrets.
 
 ## Execution and result
 
-The entrypoint invokes `buildctl-daemonless.sh build` with the `dockerfile.v0`
+The entrypoint starts one daemon for this invocation:
+`rootlesskit buildkitd $BUILDKITD_FLAGS --addr=unix://$XDG_RUNTIME_DIR/buildkit/buildkitd.sock`,
+in its own process group, with the same filtered environment as the client and its output
+in a private log file. It probes `buildctl --addr=... debug workers` up to 12 times,
+backing off 100 ms plus 20 ms per try, as upstream's `buildctl-daemonless.sh` does
+(`BUILDCTL_CONNECT_RETRIES_MAX=10`). If the daemon exits or never answers, the last 200
+lines of its log go to stderr and to log events (redacted), and the build fails before
+`buildctl build` runs.
+
+The entrypoint then runs `buildctl --addr=... build` with the `dockerfile.v0`
 frontend, `platform=linux/amd64`, `type=image,push=true`, and registry cache import
 and `mode=max` export. Each allow-listed build argument becomes one `--opt` value.
-The helper starts and tears down BuildKit for this invocation. BuildKit output goes
-to stderr, leaving stdout for the result. SIGINT/SIGTERM terminate the child process
-group, remove temporary inputs and credentials, and produce an error event.
+BuildKit output goes to stderr, leaving stdout for the result. The daemon's process
+group is stopped (SIGTERM, then SIGKILL after 5 seconds) on success, on failure and on
+interruption. SIGINT/SIGTERM terminate the client and daemon process groups, remove
+temporary inputs and credentials, and produce an error event.
 
 On success, the builder reads `containerimage.digest` from BuildKit's metadata file,
 fetches the pushed registry manifest by digest with the same Basic credential, and
@@ -146,4 +159,7 @@ The image does not enable `--oci-worker-no-process-sandbox` by default. Upstream
 documents its process-isolation tradeoff; if the operator requires that flag for
 Kubernetes, it must provide the surrounding dedicated Job/namespace isolation.
 See upstream's [rootless deployment documentation](https://github.com/moby/buildkit/blob/v0.33.0/docs/rootless.md)
-and [daemonless helper](https://github.com/moby/buildkit/blob/v0.33.0/examples/buildctl-daemonless/buildctl-daemonless.sh).
+and [daemonless helper](https://github.com/moby/buildkit/blob/v0.33.0/examples/buildctl-daemonless/buildctl-daemonless.sh),
+whose daemon lifecycle the entrypoint reproduces. The image has no fuse-overlayfs: give the
+node Linux 5.11 or newer for rootless kernel overlayfs, or BuildKit falls back to the slower
+`native` snapshotter.

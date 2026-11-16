@@ -1,7 +1,11 @@
+# SPDX-License-Identifier: MIT
+
 PYTHON ?= .venv/bin/python
 RUFF ?= .venv/bin/ruff
 
-.PHONY: proof format
+IMAGE ?= lake-builder:check
+
+.PHONY: proof format image-check
 
 proof:
 	$(RUFF) check src tests
@@ -10,3 +14,7 @@ proof:
 
 format:
 	$(RUFF) format src tests
+
+image-check:
+	docker buildx build --load -t $(IMAGE) .
+	python3 tools/image-files.py $(IMAGE)

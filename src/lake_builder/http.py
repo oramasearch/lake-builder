@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """HTTP clients that never forward credentials through redirects or host proxies."""
 
 import json

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Exercise the CLI against real local HTTP and a controllable BuildKit process."""
 
 import base64
@@ -185,12 +187,18 @@ class BuilderContractTests(unittest.TestCase):
         self.lake = FakeLake()
         self.bin = self.root / "bin"
         self.bin.mkdir()
-        executable = self.bin / "buildctl-daemonless.sh"
-        fixture = (ROOT / "tests/fixtures/buildctl-daemonless.py").read_text()
-        executable.write_text(f"#!{sys.executable}\n" + fixture)
-        executable.chmod(0o755)
+        for name in ("buildctl", "buildkitd", "rootlesskit"):
+            executable = self.bin / name
+            fixture = (ROOT / f"tests/fixtures/{name}.py").read_text()
+            executable.write_text(f"#!{sys.executable}\n" + fixture)
+            executable.chmod(0o755)
+        self.runtime = self.root / "run"
+        self.runtime.mkdir()
         self.settings = {
             "trace": str(self.root / "trace.json"),
+            "daemon_trace": str(self.root / "daemon.json"),
+            "daemon_stopped": str(self.root / "daemon-stopped"),
+            "probes": str(self.root / "probes.log"),
             "digest": self.lake.digest,
         }
         self.env = {
@@ -198,6 +206,7 @@ class BuilderContractTests(unittest.TestCase):
             "PATH": str(self.bin) + os.pathsep + os.environ["PATH"],
             "PYTHONPATH": str(ROOT / "src"),
             "TMPDIR": str(self.root),
+            "XDG_RUNTIME_DIR": str(self.runtime),
             "LAKE_URL": self.lake.url,
             "SOURCE_TOKEN": SOURCE_TOKEN,
             "REPOSITORY": "repo/with space",
@@ -211,7 +220,7 @@ class BuilderContractTests(unittest.TestCase):
             "BUILD_ARGS": '{"PYTHON_VERSION":"3.13"}',
             "BUILD_ARG_ALLOW": "PYTHON_VERSION,APP_DEPS,APP_RUNTIME_IMAGE",
         }
-        for key in ("DOCKERFILE", "BUILD_ID", "BASE_REGISTRY_AUTH"):
+        for key in ("DOCKERFILE", "BUILD_ID", "BASE_REGISTRY_AUTH", "BUILDKITD_FLAGS"):
             self.env.pop(key, None)
 
     def tearDown(self):
@@ -219,7 +228,7 @@ class BuilderContractTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def command(self):
-        (self.bin / "buildctl-daemonless.json").write_text(json.dumps(self.settings))
+        (self.bin / "fixture.json").write_text(json.dumps(self.settings))
         return [sys.executable, "-m", "lake_builder"]
 
     def run_builder(self):
@@ -230,6 +239,12 @@ class BuilderContractTests(unittest.TestCase):
     def trace(self):
         return json.loads((self.root / "trace.json").read_text())
 
+    def daemon_trace(self):
+        return json.loads((self.root / "daemon.json").read_text())
+
+    def daemon_stopped(self):
+        return (self.root / "daemon-stopped").exists()
+
     def event_values(self, kind):
         return [value for _, _, value in self.lake.events if value["type"] == kind]
 
@@ -238,6 +253,7 @@ class BuilderContractTests(unittest.TestCase):
         self.assertEqual(result.stdout, "")
         self.assertIn(message, result.stderr)
         self.assertFalse((self.root / "trace.json").exists())
+        self.assertFalse((self.root / "daemon.json").exists())
         self.assertTrue(self.event_values("error"))
         self.assertFalse(self.lake.pushes)
 
@@ -505,6 +521,63 @@ class BuilderContractTests(unittest.TestCase):
         self.assertEqual(size, len(index) + len(self.lake.manifest_bytes) + 168)
         self.assertEqual(len(self.lake.manifest_reads), 2)
 
+    def test_rootless_daemon_lifecycle(self):
+        self.env["BUILDKITD_FLAGS"] = "--oci-worker-no-process-sandbox  --debug"
+        result = self.run_builder()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        address = f"unix://{self.runtime}/buildkit/buildkitd.sock"
+        daemon = self.daemon_trace()
+        self.assertTrue(daemon["rootlesskit"])
+        self.assertEqual(daemon["args"][:2], ["--oci-worker-no-process-sandbox", "--debug"])
+        self.assertEqual(daemon["args"][2], "--config")
+        self.assertTrue(daemon["args"][3].endswith("/buildkitd.toml"))
+        self.assertEqual(daemon["args"][-1], f"--addr={address}")
+        for name in ("SOURCE_TOKEN", "PUSH_TOKEN", "EVENTS_TOKEN", "BASE_REGISTRY_AUTH"):
+            self.assertNotIn(name, daemon["env_keys"])
+        self.assertEqual(self.trace()["address"], address)
+        probes = (self.root / "probes.log").read_text().splitlines()
+        self.assertTrue(probes)
+        self.assertEqual(set(probes), {address})
+        self.assertTrue(self.daemon_stopped())
+        self.assertFalse(Path(address.removeprefix("unix://")).exists())
+
+    def test_daemon_that_exits_fails_before_the_build(self):
+        self.settings["daemon_exit"] = 3
+        result = self.run_builder()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("BuildKit daemon exited with status 3", result.stderr)
+        self.assertIn("buildkitd: fake buildkitd: cannot start the OCI worker", result.stderr)
+        self.assertFalse((self.root / "trace.json").exists())
+        logged = [line for value in self.event_values("log") for line in value["lines"]]
+        self.assertIn("buildkitd: fake buildkitd: cannot start the OCI worker", logged)
+        self.assertTrue(self.event_values("error"))
+        self.assertFalse(self.lake.pushes)
+
+    def test_daemon_that_never_listens_is_stopped(self):
+        self.settings["daemon_never_ready"] = True
+        result = self.run_builder()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("BuildKit daemon was not ready after 10 retries", result.stderr)
+        self.assertEqual(len((self.root / "probes.log").read_text().splitlines()), 12)
+        self.assertFalse((self.root / "trace.json").exists())
+        self.assertTrue(self.daemon_stopped())
+
+    def test_build_failure_still_stops_the_daemon(self):
+        self.settings["exit_code"] = 5
+        result = self.run_builder()
+        self.assertIn("BuildKit exited with status 5", result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertTrue(self.daemon_stopped())
+
+    def test_relative_runtime_directory_is_rejected(self):
+        self.env["XDG_RUNTIME_DIR"] = "run"
+        result = self.run_builder()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("XDG_RUNTIME_DIR must be an absolute path", result.stderr)
+        self.assertFalse((self.root / "daemon.json").exists())
+
     def test_signal_stops_child_and_removes_credentials(self):
         self.settings["hang"] = True
         process = subprocess.Popen(
@@ -520,6 +593,7 @@ class BuilderContractTests(unittest.TestCase):
             self.assertNotEqual(process.returncode, 0)
             self.assertEqual(stdout, "")
             self.assertIn("build interrupted", stderr)
+            self.assertTrue(self.daemon_stopped())
             self.assertFalse(Path(self.trace()["credential_path"]).exists())
         finally:
             if process.poll() is None:
@@ -547,9 +621,7 @@ class PlainHttpRegistryConfigTest(unittest.TestCase):
         from lake_builder.build import child_environment
 
         with tempfile.TemporaryDirectory() as directory:
-            config = SimpleNamespace(
-                lake="http://lake-prod.lake.svc:80", registry="lake-prod.lake.svc"
-            )
+            config = SimpleNamespace(lake="http://lake.example.svc:80", registry="lake.example.svc")
             env = child_environment(
                 {"PATH": "/bin", "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox"},
                 directory,
@@ -558,7 +630,7 @@ class PlainHttpRegistryConfigTest(unittest.TestCase):
             flags = env["BUILDKITD_FLAGS"]
             self.assertTrue(flags.startswith("--oci-worker-no-process-sandbox --config "))
             written = open(os.path.join(directory, "buildkitd.toml")).read()
-            self.assertIn('[registry."lake-prod.lake.svc"]', written)
+            self.assertIn('[registry."lake.example.svc"]', written)
             self.assertIn("http = true", written)
 
     def test_https_lake_registry_adds_no_config(self):

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Materialize only the requested source, with credentials kept elsewhere."""
 
 import base64
