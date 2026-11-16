@@ -2,7 +2,8 @@
 
 The image a lake in-cluster build Job runs: rootless BuildKit in daemonless mode, building a lake repository at a pinned revision and pushing to lake's registry with a scoped token.
 
-Its image is published as `oramasearch/lake-builder` on Docker Hub.
+**Status:** v0.1.0, the first release ([notes](docs/releases/v0.1.0.md)). Its image is
+published as `oramasearch/lake-builder` on Docker Hub.
 
 The entrypoint fetches a pinned repository revision through lake REST. It starts an
 ephemeral rootless BuildKit v0.33.0 daemon, builds for `linux/amd64`, and pushes the image
