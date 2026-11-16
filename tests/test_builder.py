@@ -477,8 +477,11 @@ class BuilderContractTests(unittest.TestCase):
         logs = [(stamp, raw) for stamp, raw, event in self.lake.events if event["type"] == "log"]
         self.assertTrue(logs)
         self.assertTrue(all(len(raw) <= 65536 for _, raw in logs))
+        # The builder spaces batches by its own send time; these stamps are when the fake lake
+        # received them, so request latency can shave a little off a gap. Without the limit the
+        # batches would arrive milliseconds apart.
         for first, second in zip(logs, logs[1:]):
-            self.assertGreaterEqual(second[0] - first[0], 0.98)
+            self.assertGreaterEqual(second[0] - first[0], 0.9)
         combined = result.stderr + str(self.lake.events)
         for secret in (SOURCE_TOKEN, PUSH_TOKEN, EVENTS_TOKEN, encoded_auth(PUSH_TOKEN)):
             self.assertNotIn(secret, combined)
