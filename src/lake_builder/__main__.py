@@ -9,6 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from . import __version__
 from .build import run_build
 from .config import BuildError, Config
 from .events import Events
@@ -39,6 +40,9 @@ def execute(config, env, events):
 
 
 def main():
+    if sys.argv[1:] == ["--version"]:
+        print(f"lake-builder {__version__}", flush=True)
+        return 0
     events = None
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)

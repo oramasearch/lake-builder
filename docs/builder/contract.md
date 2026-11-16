@@ -3,7 +3,8 @@
 One invocation performs one build. The image is `scratch` with static BuildKit v0.33.0
 (`buildkitd`, `buildctl`, `buildkit-runc`), RootlessKit, the uid-map helpers, a musl CPython
 and CA certificates; [image contents](image.md) lists every file and its licence. It runs as
-numeric UID/GID `1000:1000`, and the entrypoint rejects UID 0. The entrypoint starts its own
+numeric UID/GID `1000:1000`, and the entrypoint rejects UID 0. `--version` prints
+`lake-builder <version>` and exits without reading the environment. The entrypoint starts its own
 ephemeral rootless daemon; no shell, Docker daemon or liquid client is required. Python
 runtime code has no third-party dependencies.
 
