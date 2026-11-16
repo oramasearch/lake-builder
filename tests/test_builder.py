@@ -621,9 +621,7 @@ class PlainHttpRegistryConfigTest(unittest.TestCase):
         from lake_builder.build import child_environment
 
         with tempfile.TemporaryDirectory() as directory:
-            config = SimpleNamespace(
-                lake="http://lake.example.svc:80", registry="lake.example.svc"
-            )
+            config = SimpleNamespace(lake="http://lake.example.svc:80", registry="lake.example.svc")
             env = child_environment(
                 {"PATH": "/bin", "BUILDKITD_FLAGS": "--oci-worker-no-process-sandbox"},
                 directory,
