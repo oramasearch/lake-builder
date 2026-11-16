@@ -1,18 +1,51 @@
 Third-party software in lake-builder
 
-lake-builder is licensed under the MIT License (see LICENSE). It includes or uses the components
-below, each under its own license. This file is generated; do not edit it by hand.
-Generated with: a review of pyproject.toml (no runtime dependencies) and the Dockerfile
-From: pyproject.toml and the Dockerfile
+lake-builder is licensed under the MIT License (see LICENSE). The source code uses only the Python
+standard library and has no third-party Python package. The container image built from the
+Dockerfile is scratch plus the components below, each under its own license.
+From: docs/builder/image.md, which lists every file in the image; tools/image-files.py checks a
+built image against that list, and tools/sbom.py writes the same components into the SBOM.
+Each license text is at the component's source, given below.
 
 Summary
 
-No third-party Python package: the code uses the Python standard library only.
+Component                          Version    License
+CPython (python-build-standalone)  3.12.16    Python-2.0 AND CNRI-Python
+  linked into libpython: OpenSSL (Apache-2.0), libffi (MIT), zlib (Zlib), bzip2 (bzip2-1.0.6),
+  xz (0BSD), mpdecimal (BSD-2-Clause), expat (MIT), libedit (BSD-3-Clause), ncurses (X11),
+  libuuid (BSD-3-Clause), SQLite (public domain)
+BuildKit buildkitd, buildctl       v0.33.0    Apache-2.0
+runc (buildkit-runc)               v1.4.3     Apache-2.0
+libseccomp (in buildkit-runc)      v2.6.0     LGPL-2.1-only (accepted exception, below)
+RootlessKit                        v3.0.1     Apache-2.0
+shadow newuidmap, newgidmap        4.18.0     BSD-3-Clause (per-file audit pending)
+libbsd                             0.12.2     BSD-3-Clause
+libmd                              1.1.0      BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware
+                                              AND public domain
+musl                               1.2.5      MIT
+Mozilla CA bundle                  20260611   MPL-2.0 AND MIT
 
-Container base image
+Sources
 
-The image is built FROM moby/buildkit:v0.33.0-rootless (https://github.com/moby/buildkit,
-Apache-2.0), an Alpine Linux image, and adds Alpine's python3 (PSF-2.0) and ca-certificates
-(MPL-2.0 and others) packages with apk. Alpine packages keep their own licenses (some GPL, such as
-busybox and musl's tools; musl itself is MIT); their sources are published by Alpine at
-https://gitlab.alpinelinux.org/alpine/aports. The image is not part of this repository's source.
+CPython 3.12.16, python-build-standalone 20261110
+  https://github.com/astral-sh/python-build-standalone/releases/tag/20261110
+  The release's PYTHON.json lists the license of every linked library. The image drops Tcl/Tk,
+  IDLE, the test suite, pip and _dbm (Berkeley DB, Sleepycat), so none of these ship.
+BuildKit v0.33.0, runc v1.4.3, RootlessKit v3.0.1
+  Copied unchanged from moby/buildkit:v0.33.0-rootless@sha256:80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef
+  https://github.com/moby/buildkit/tree/v0.33.0
+  https://github.com/opencontainers/runc/tree/v1.4.3
+  https://github.com/rootless-containers/rootlesskit/tree/v3.0.1
+shadow 4.18.0, libbsd 0.12.2, libmd 1.1.0, musl 1.2.5, CA bundle 20260611-r0
+  Alpine 3.23 packages (shadow-subids, libbsd, libmd, musl, ca-certificates-bundle), copied from
+  the same pinned image. Sources: https://gitlab.alpinelinux.org/alpine/aports
+
+The libseccomp exception
+
+buildkit-runc is the upstream BuildKit release binary of runc. It links libseccomp 2.6.0
+(LGPL-2.1-only) statically so that untrusted Dockerfile RUN steps run under a seccomp filter.
+libseccomp's source is at https://github.com/seccomp/libseccomp/tree/v2.6.0, and the build that
+links it is the runc stage of https://github.com/moby/buildkit/blob/v0.33.0/Dockerfile, which
+uses runc's vendored Go source (Apache-2.0). A recipient can rebuild runc against a modified
+libseccomp with that stage, as LGPL-2.1 section 6 allows. It is the one LGPL component in the
+image; the image holds no GPL code.

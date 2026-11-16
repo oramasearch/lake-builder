@@ -2,26 +2,66 @@
   "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "lake-builder-ff6c13b11cd9",
-  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/ff6c13b11cd96d37c3c464bbd5faa7d4167e1554",
+  "name": "lake-builder-3edf36f12d9a",
+  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/3edf36f12d9a9ae5bc9f217e00ebdc1dd5c55fa2",
   "creationInfo": {
-    "created": "2026-11-16T01:55:02Z",
+    "created": "2026-11-16T05:36:37Z",
     "creators": [
       "Organization: OramaSearch, Inc.",
       "Tool: tools/sbom.py",
       "Tool: syft"
     ],
     "licenseListVersion": "3.29",
-    "comment": "Made from source commit ff6c13b11cd96d37c3c464bbd5faa7d4167e1554 by tools/sbom.py."
+    "comment": "Made from source commit 3edf36f12d9a9ae5bc9f217e00ebdc1dd5c55fa2 by tools/sbom.py."
   },
   "documentDescribes": [
     "SPDXRef-DocumentRoot"
   ],
   "packages": [
     {
+      "name": "BuildKit",
+      "SPDXID": "SPDXRef-Component-BuildKit-1cec71bbc1ed0bc9",
+      "versionInfo": "v0.33.0",
+      "downloadLocation": "https://github.com/moby/buildkit",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "comment": "buildkitd, buildctl, static. How it is used: the build daemon and client, /usr/bin in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/moby/buildkit",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/moby/buildkit@v0.33.0"
+        }
+      ]
+    },
+    {
+      "name": "CPython",
+      "SPDXID": "SPDXRef-Component-CPython-5ba1ea64eb58d736",
+      "versionInfo": "3.12.16",
+      "downloadLocation": "https://github.com/astral-sh/python-build-standalone",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Python-2.0 AND CNRI-Python",
+      "comment": "python-build-standalone 20261110, musl, install_only_stripped. How it is used: the entrypoint's interpreter, /opt/python in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/astral-sh/python-build-standalone",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/astral-sh/python-build-standalone@3.12.16"
+        }
+      ]
+    },
+    {
       "name": "lake-builder",
       "SPDXID": "SPDXRef-DocumentRoot",
-      "versionInfo": "ff6c13b11cd9",
+      "versionInfo": "3edf36f12d9a",
       "downloadLocation": "git+https://github.com/oramasearch/lake-builder.git",
       "homepage": "https://github.com/oramasearch/lake-builder",
       "filesAnalyzed": false,
@@ -34,9 +74,55 @@
       "comment": "The source tree of lake-builder. Packages found by syft in the files git tracks, plus the C and C++ components of THIRD_PARTY_LICENSES and the git submodules."
     },
     {
+      "name": "libbsd",
+      "SPDXID": "SPDXRef-Component-libbsd-2e51f80bf8b8dfc4",
+      "versionInfo": "0.12.2",
+      "downloadLocation": "https://libbsd.freedesktop.org",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "BSD-3-Clause",
+      "comment": "How it is used: a library of newuidmap and newgidmap, /usr/lib in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://libbsd.freedesktop.org"
+    },
+    {
+      "name": "libmd",
+      "SPDXID": "SPDXRef-Component-libmd-e640fcd4c89c1447",
+      "versionInfo": "1.1.0",
+      "downloadLocation": "https://www.hadrons.org/software/libmd/",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND LicenseRef-Public-Domain",
+      "comment": "How it is used: a library of libbsd, /usr/lib in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://www.hadrons.org/software/libmd/"
+    },
+    {
+      "name": "libseccomp",
+      "SPDXID": "SPDXRef-Component-libseccomp-902b21c9a0a8aa2e",
+      "versionInfo": "v2.6.0",
+      "downloadLocation": "https://github.com/seccomp/libseccomp",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "LGPL-2.1-only",
+      "comment": "statically linked into buildkit-runc; accepted licence exception. How it is used: the seccomp filter for RUN steps, inside /usr/bin/buildkit-runc. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/seccomp/libseccomp",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/seccomp/libseccomp@v2.6.0"
+        }
+      ]
+    },
+    {
       "name": "moby/buildkit",
-      "SPDXID": "SPDXRef-Image-moby-buildkit-b5a63fc90e18a273",
-      "versionInfo": "v0.33.0-rootless",
+      "SPDXID": "SPDXRef-Image-moby-buildkit-4082ac4cb395beb3",
+      "versionInfo": "v0.33.0-rootless@sha256:80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "supplier": "NOASSERTION",
@@ -44,12 +130,58 @@
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "primaryPackagePurpose": "CONTAINER",
-      "comment": "Container base image (moby/buildkit:v0.33.0-rootless), FROM in Dockerfile. Its own packages are in the image SBOM of each release image.",
+      "comment": "Container base image (moby/buildkit:v0.33.0-rootless@sha256:80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef), FROM in Dockerfile. Its own packages are in the image SBOM of each release image.",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:docker/moby/buildkit@v0.33.0-rootless"
+          "referenceLocator": "pkg:docker/moby/buildkit@sha256%3A80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef?tag=v0.33.0-rootless"
+        }
+      ]
+    },
+    {
+      "name": "Mozilla CA certificate bundle",
+      "SPDXID": "SPDXRef-Component-Mozilla-CA-certificate-bundle-e7df5df975e6fe18",
+      "versionInfo": "20260611-r0",
+      "downloadLocation": "https://gitlab.alpinelinux.org/alpine/ca-certificates",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MPL-2.0 AND MIT",
+      "comment": "Alpine ca-certificates-bundle. How it is used: TLS trust roots, /etc/ssl in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://gitlab.alpinelinux.org/alpine/ca-certificates"
+    },
+    {
+      "name": "musl",
+      "SPDXID": "SPDXRef-Component-musl-3efbeb91db1e2f64",
+      "versionInfo": "1.2.5",
+      "downloadLocation": "https://musl.libc.org",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "comment": "How it is used: the C library and loader for CPython and the uid-map helpers, /lib in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://musl.libc.org"
+    },
+    {
+      "name": "RootlessKit",
+      "SPDXID": "SPDXRef-Component-RootlessKit-3eceef5f289faba7",
+      "versionInfo": "v3.0.1",
+      "downloadLocation": "https://github.com/rootless-containers/rootlesskit",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "comment": "static. How it is used: the rootless user namespace for buildkitd, /usr/bin/rootlesskit in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/rootless-containers/rootlesskit",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/rootless-containers/rootlesskit@v3.0.1"
         }
       ]
     },
@@ -131,16 +263,106 @@
           "referenceLocator": "pkg:pypi/ruff@0.11.13"
         }
       ]
+    },
+    {
+      "name": "runc",
+      "SPDXID": "SPDXRef-Component-runc-74c464198b18416d",
+      "versionInfo": "v1.4.3",
+      "downloadLocation": "https://github.com/opencontainers/runc",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "comment": "buildkit-runc, static. How it is used: the OCI runtime for RUN steps, /usr/bin/buildkit-runc in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/opencontainers/runc",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/opencontainers/runc@v1.4.3"
+        }
+      ]
+    },
+    {
+      "name": "shadow",
+      "SPDXID": "SPDXRef-Component-shadow-3fcacfeaddeebab1",
+      "versionInfo": "4.18.0",
+      "downloadLocation": "https://github.com/shadow-maint/shadow",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "BSD-3-Clause",
+      "comment": "newuidmap, newgidmap; per-file licence audit pending. How it is used: subordinate ID mapping for RootlessKit, /usr/bin in the image. Listed in THIRD_PARTY_LICENSES.",
+      "homepage": "https://github.com/shadow-maint/shadow",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/shadow-maint/shadow@4.18.0"
+        }
+      ]
     }
   ],
   "relationships": [
+    {
+      "relatedSpdxElement": "SPDXRef-Component-BuildKit-1cec71bbc1ed0bc9",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-CPython-5ba1ea64eb58d736",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-Mozilla-CA-certificate-bundle-e7df5df975e6fe18",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-RootlessKit-3eceef5f289faba7",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-libbsd-2e51f80bf8b8dfc4",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-libmd-e640fcd4c89c1447",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-libseccomp-902b21c9a0a8aa2e",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-musl-3efbeb91db1e2f64",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-runc-74c464198b18416d",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Component-shadow-3fcacfeaddeebab1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
     {
       "relatedSpdxElement": "SPDXRef-DocumentRoot",
       "relationshipType": "DESCRIBES",
       "spdxElementId": "SPDXRef-DOCUMENT"
     },
     {
-      "relatedSpdxElement": "SPDXRef-Image-moby-buildkit-b5a63fc90e18a273",
+      "relatedSpdxElement": "SPDXRef-Image-moby-buildkit-4082ac4cb395beb3",
       "relationshipType": "DEPENDS_ON",
       "spdxElementId": "SPDXRef-DocumentRoot"
     },

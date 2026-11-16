@@ -53,7 +53,41 @@ ORIGINATOR = SUPPLIER                             # a fork names its upstream he
 HOME = f"https://github.com/oramasearch/{REPOSITORY}"
 # Components neither a lock file nor tools/third-party-licenses.* lists (a base model, for example),
 # in that list's form: name, version, license, use, url.
-EXTRA_COMPONENTS: list[dict] = []
+# The image is scratch plus the files docs/builder/image.md lists (tools/image-files.py checks it).
+EXTRA_COMPONENTS: list[dict] = [
+    {"name": "CPython (python-build-standalone 20261110, musl, install_only_stripped)",
+     "version": "3.12.16", "license": "Python-2.0 AND CNRI-Python",
+     "use": "the entrypoint's interpreter, /opt/python in the image",
+     "url": "https://github.com/astral-sh/python-build-standalone"},
+    {"name": "BuildKit (buildkitd, buildctl, static)", "version": "v0.33.0",
+     "license": "Apache-2.0", "use": "the build daemon and client, /usr/bin in the image",
+     "url": "https://github.com/moby/buildkit"},
+    {"name": "runc (buildkit-runc, static)", "version": "v1.4.3", "license": "Apache-2.0",
+     "use": "the OCI runtime for RUN steps, /usr/bin/buildkit-runc in the image",
+     "url": "https://github.com/opencontainers/runc"},
+    {"name": "libseccomp (statically linked into buildkit-runc; accepted licence exception)",
+     "version": "v2.6.0", "license": "LGPL-2.1-only",
+     "use": "the seccomp filter for RUN steps, inside /usr/bin/buildkit-runc",
+     "url": "https://github.com/seccomp/libseccomp"},
+    {"name": "RootlessKit (static)", "version": "v3.0.1", "license": "Apache-2.0",
+     "use": "the rootless user namespace for buildkitd, /usr/bin/rootlesskit in the image",
+     "url": "https://github.com/rootless-containers/rootlesskit"},
+    {"name": "shadow (newuidmap, newgidmap; per-file licence audit pending)", "version": "4.18.0",
+     "license": "BSD-3-Clause", "use": "subordinate ID mapping for RootlessKit, /usr/bin in the image",
+     "url": "https://github.com/shadow-maint/shadow"},
+    {"name": "libbsd", "version": "0.12.2", "license": "BSD-3-Clause",
+     "use": "a library of newuidmap and newgidmap, /usr/lib in the image",
+     "url": "https://libbsd.freedesktop.org"},
+    {"name": "libmd", "version": "1.1.0",
+     "license": "BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND LicenseRef-Public-Domain",
+     "use": "a library of libbsd, /usr/lib in the image", "url": "https://www.hadrons.org/software/libmd/"},
+    {"name": "musl", "version": "1.2.5", "license": "MIT",
+     "use": "the C library and loader for CPython and the uid-map helpers, /lib in the image",
+     "url": "https://musl.libc.org"},
+    {"name": "Mozilla CA certificate bundle (Alpine ca-certificates-bundle)", "version": "20260611-r0",
+     "license": "MPL-2.0 AND MIT", "use": "TLS trust roots, /etc/ssl in the image",
+     "url": "https://gitlab.alpinelinux.org/alpine/ca-certificates"},
+]
 # --- end of the repository's settings ---------------------------------------------------------
 
 SYFT_TESTED = "1.57.1"
