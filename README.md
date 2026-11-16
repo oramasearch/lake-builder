@@ -36,5 +36,5 @@ The suite runs on macOS and Linux with Python 3.11 or newer; it does not build o
 ## License
 
 MIT, see [LICENSE](LICENSE). Third-party components and their licenses are in
-[THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES). Contributions are welcome under the Developer
-Certificate of Origin; see [CONTRIBUTING.md](CONTRIBUTING.md).
+[THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES). Contributions are welcome under the
+[Contributor License Agreement](CLA.md); see [CONTRIBUTING.md](CONTRIBUTING.md).
