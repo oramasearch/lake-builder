@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:c9d5b780-8a5a-5cfe-a6f1-92a8d6bf8dbc",
+  "serialNumber": "urn:uuid:bdbc8f00-0b81-52fe-b355-5a31fe56cec4",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-15T17:24:36Z",
+    "timestamp": "2026-11-16T01:55:02Z",
     "tools": {
       "components": [
         {
@@ -27,7 +27,7 @@
       "bom-ref": "DocumentRoot",
       "type": "library",
       "name": "lake-builder",
-      "version": "be93b5ab0b1a",
+      "version": "ff6c13b11cd9",
       "licenses": [
         {
           "license": {
