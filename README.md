@@ -1,8 +1,8 @@
 # lake-builder
 
-The image a lake in-cluster build Job runs: rootless BuildKit in daemonless mode, building a lake repository at a pinned revision and pushing to lake's registry with a scoped token. Epic: oramasearch/lake#297.
+The image a lake in-cluster build Job runs: rootless BuildKit in daemonless mode, building a lake repository at a pinned revision and pushing to lake's registry with a scoped token.
 
-Private. Its image is published **private** as `oramasearch/lake-builder` on Docker Hub.
+Its image is published as `oramasearch/lake-builder` on Docker Hub.
 
 The entrypoint fetches a pinned repository revision through lake REST, builds for
 `linux/amd64` using `moby/buildkit:v0.33.0-rootless`, and pushes the image and registry
@@ -28,5 +28,4 @@ make proof
 
 The native suite uses a local fake lake/registry HTTP server and a fake BuildKit
 process. A real rootless BuildKit image build remains a separate Linux verification.
-GitHub Actions runs this contract suite on macOS/Python 3.14 and Linux/Python 3.11;
-it does not build or publish the private image.
+The suite runs on macOS and Linux with Python 3.11 or newer; it does not build or publish the image.
