@@ -2,17 +2,17 @@
   "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "lake-builder-v0.1.0",
-  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/96ea43cb02b6ab2589ad768e3e7748ab01a01542",
+  "name": "lake-builder-7d846d12a85e",
+  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/7d846d12a85e8bbe90ca446adeefce503376e461",
   "creationInfo": {
-    "created": "2026-11-16T05:52:28Z",
+    "created": "2026-11-16T06:08:01Z",
     "creators": [
       "Organization: OramaSearch, Inc.",
       "Tool: tools/sbom.py",
       "Tool: syft"
     ],
     "licenseListVersion": "3.29",
-    "comment": "Made from source commit 96ea43cb02b6ab2589ad768e3e7748ab01a01542 by tools/sbom.py."
+    "comment": "Made from source commit 7d846d12a85e8bbe90ca446adeefce503376e461 by tools/sbom.py."
   },
   "documentDescribes": [
     "SPDXRef-DocumentRoot"
@@ -61,7 +61,7 @@
     {
       "name": "lake-builder",
       "SPDXID": "SPDXRef-DocumentRoot",
-      "versionInfo": "v0.1.0",
+      "versionInfo": "7d846d12a85e",
       "downloadLocation": "git+https://github.com/oramasearch/lake-builder.git",
       "homepage": "https://github.com/oramasearch/lake-builder",
       "filesAnalyzed": false,
@@ -293,8 +293,8 @@
       "supplier": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "BSD-3-Clause",
-      "comment": "newuidmap, newgidmap; per-file licence audit pending. How it is used: subordinate ID mapping for RootlessKit, /usr/bin in the image. Listed in THIRD_PARTY_LICENSES.",
+      "licenseDeclared": "BSD-3-Clause AND ISC AND 0BSD AND Unlicense",
+      "comment": "newuidmap, newgidmap. How it is used: subordinate ID mapping for RootlessKit, /usr/bin in the image. Listed in THIRD_PARTY_LICENSES.",
       "homepage": "https://github.com/shadow-maint/shadow",
       "externalRefs": [
         {
