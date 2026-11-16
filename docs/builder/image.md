@@ -30,7 +30,7 @@ The image supports `linux/amd64` and `linux/arm64`. The builds it runs always ta
 | `/usr/bin/buildkitd`, `/usr/bin/buildctl` | BuildKit v0.33.0, static | pinned BuildKit image | Apache-2.0 |
 | `/usr/bin/buildkit-runc` | runc 1.4.3, static | pinned BuildKit image | Apache-2.0, **statically links libseccomp 2.6.0 (LGPL-2.1), an accepted exception**: see below |
 | `/usr/bin/rootlesskit` | RootlessKit 3.0.1, static | pinned BuildKit image | Apache-2.0 |
-| `/usr/bin/newuidmap`, `/usr/bin/newgidmap` | shadow 4.18.0 (Alpine `shadow-subids`) | pinned BuildKit image | BSD-3-Clause per Alpine metadata; **per-file audit pending**: see below |
+| `/usr/bin/newuidmap`, `/usr/bin/newgidmap` | shadow 4.18.0 (Alpine `shadow-subids`) | pinned BuildKit image | BSD-3-Clause AND ISC AND 0BSD AND Unlicense, from a per-file audit of the sources: see below |
 | `/usr/lib/libbsd.so.0*` | libbsd 0.12.2 (needed by the uid-map helpers) | pinned BuildKit image | BSD-3-Clause |
 | `/usr/lib/libmd.so.0*` | libmd 1.1.0 (needed by libbsd) | pinned BuildKit image | BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND public domain |
 | `/lib/ld-musl-*.so.1`, `/lib/libc.musl-*.so.1` | musl 1.2.5 (loader and libc for Python and the uid-map helpers) | pinned BuildKit image | MIT |
@@ -55,9 +55,16 @@ plugins.
   the `runc` stage of BuildKit v0.33.0's `Dockerfile`, so the binary can be relinked against a
   modified libseccomp as LGPL-2.1 section 6 allows. Dropping it means runc built with
   `BUILDTAGS=""`, which leaves the `RUN` steps with no syscall filter.
-- **`newuidmap`/`newgidmap`.** Alpine's metadata marks `shadow-subids` BSD-3-Clause, but the
-  shadow source tree also contains GPL-2.0-or-later files. These two binaries still need a
-  check of which source files they compile from. A follow-up issue tracks it.
+- **`newuidmap`/`newgidmap`: audited, no GPL.** In shadow 4.18.0 (`src/Makefile.am`), the
+  helpers build from `src/newuidmap.c` and `src/newgidmap.c` and link `lib/libshadow.la`.
+  Alpine's build links nothing else into them but libbsd, libmd and musl (`ldd`). Its only
+  patch, `useradd-defaults.patch`, changes `useradd`.
+  - Every file in `src/newuidmap.c`, `src/newgidmap.c`, `lib/` and `libsubid/` declares
+    BSD-3-Clause, except `lib/readpassphrase.c` and `lib/freezero.c` (ISC, from OpenBSD),
+    `lib/tcbfuncs.c` (0BSD) and `lib/salt.c` (Unlicense).
+  - Files with no SPDX header fall under shadow's `COPYING` default, BSD-3-Clause.
+  - Shadow's GPL text is only in its autotools build scripts and some translated man pages,
+    and neither is compiled into the helpers.
 - **CA bundle (MPL-2.0).** This is certificate data under a weak, file-level copyleft. It is
   not GPL or LGPL.
 

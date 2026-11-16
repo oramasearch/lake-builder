@@ -18,7 +18,7 @@ BuildKit buildkitd, buildctl       v0.33.0    Apache-2.0
 runc (buildkit-runc)               v1.4.3     Apache-2.0
 libseccomp (in buildkit-runc)      v2.6.0     LGPL-2.1-only (accepted exception, below)
 RootlessKit                        v3.0.1     Apache-2.0
-shadow newuidmap, newgidmap        4.18.0     BSD-3-Clause (per-file audit pending)
+shadow newuidmap, newgidmap        4.18.0     BSD-3-Clause AND ISC AND 0BSD AND Unlicense
 libbsd                             0.12.2     BSD-3-Clause
 libmd                              1.1.0      BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware
                                               AND public domain

@@ -59,7 +59,7 @@ COMPONENTS = [
     ("RootlessKit", "Apache-2.0", ["usr/bin/rootlesskit"]),
     (
         "shadow newuidmap, newgidmap (Alpine shadow-subids)",
-        "BSD-3-Clause (Alpine metadata; per-file audit pending)",
+        "BSD-3-Clause AND ISC AND 0BSD AND Unlicense (per-file audit)",
         ["usr/bin/newuidmap", "usr/bin/newgidmap"],
     ),
     ("libbsd", "BSD-3-Clause", ["usr/lib/libbsd.so.0*"]),
