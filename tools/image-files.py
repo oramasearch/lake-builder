@@ -53,7 +53,7 @@ COMPONENTS = [
     ("BuildKit buildkitd, buildctl", "Apache-2.0", ["usr/bin/buildkitd", "usr/bin/buildctl"]),
     (
         "runc (buildkit-runc, static)",
-        "Apache-2.0; statically links libseccomp LGPL-2.1 (flagged)",
+        "Apache-2.0; statically links libseccomp LGPL-2.1 (accepted exception)",
         ["usr/bin/buildkit-runc"],
     ),
     ("RootlessKit", "Apache-2.0", ["usr/bin/rootlesskit"]),

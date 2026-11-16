@@ -28,7 +28,7 @@ The image supports `linux/amd64` and `linux/arm64`. The builds it runs always ta
 | `/opt/python/` | CPython 3.12.16, python-build-standalone `20261110`, `*-unknown-linux-musl-install_only_stripped` | [release](https://github.com/astral-sh/python-build-standalone/releases/tag/20261110), SHA-256 in the `Dockerfile` | Python-2.0 AND CNRI-Python |
 | (linked into `libpython`) | OpenSSL, libffi, zlib, bzip2, xz, mpdecimal, expat, libedit, ncurses, libuuid, SQLite | same release (`PYTHON.json` licence metadata) | Apache-2.0, MIT, Zlib, bzip2-1.0.6, 0BSD, BSD-2-Clause, MIT, BSD-3-Clause, X11, BSD-3-Clause, public domain |
 | `/usr/bin/buildkitd`, `/usr/bin/buildctl` | BuildKit v0.33.0, static | pinned BuildKit image | Apache-2.0 |
-| `/usr/bin/buildkit-runc` | runc 1.4.3, static | pinned BuildKit image | Apache-2.0, **statically links libseccomp 2.6.0 (LGPL-2.1)**: see below |
+| `/usr/bin/buildkit-runc` | runc 1.4.3, static | pinned BuildKit image | Apache-2.0, **statically links libseccomp 2.6.0 (LGPL-2.1), an accepted exception**: see below |
 | `/usr/bin/rootlesskit` | RootlessKit 3.0.1, static | pinned BuildKit image | Apache-2.0 |
 | `/usr/bin/newuidmap`, `/usr/bin/newgidmap` | shadow 4.18.0 (Alpine `shadow-subids`) | pinned BuildKit image | BSD-3-Clause per Alpine metadata; **per-file audit pending**: see below |
 | `/usr/lib/libbsd.so.0*` | libbsd 0.12.2 (needed by the uid-map helpers) | pinned BuildKit image | BSD-3-Clause |
@@ -45,12 +45,16 @@ These upstream files are not in the image: BusyBox and `buildctl-daemonless.sh`,
 fuse-overlayfs and fuse3, pigz, xz, the BuildKit QEMU emulators (GPL-2.0) and the BuildKit CNI
 plugins.
 
-### Open licence items
+### Licence exception and open items
 
-- **libseccomp in `buildkit-runc` (LGPL-2.1).** The decision was to keep seccomp: without
-  it, the untrusted Dockerfile `RUN` steps run with no syscall filter. runc's own source is
-  Apache-2.0, and libseccomp is linked statically. This is recorded as an exception for
-  review. The alternative is runc built with `BUILDTAGS=""` (no libseccomp, no seccomp).
+- **libseccomp in `buildkit-runc` (LGPL-2.1): an accepted exception.** It is the one LGPL
+  component in the image. It is kept so that the untrusted Dockerfile `RUN` steps keep a
+  seccomp syscall filter. runc's own source is Apache-2.0, and libseccomp 2.6.0 is linked
+  statically into the upstream BuildKit release binary. Its source is at
+  <https://github.com/seccomp/libseccomp/tree/v2.6.0>, and the upstream build that links it is
+  the `runc` stage of BuildKit v0.33.0's `Dockerfile`, so the binary can be relinked against a
+  modified libseccomp as LGPL-2.1 section 6 allows. Dropping it means runc built with
+  `BUILDTAGS=""`, which leaves the `RUN` steps with no syscall filter.
 - **`newuidmap`/`newgidmap`.** Alpine's metadata marks `shadow-subids` BSD-3-Clause, but the
   shadow source tree also contains GPL-2.0-or-later files. These two binaries still need a
   check of which source files they compile from. A follow-up issue tracks it.
