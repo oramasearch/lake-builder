@@ -27,7 +27,7 @@ def execute(config, env, events):
         events.add_secrets(credential_secrets)
         metadata = root / "metadata.json"
         events.phase("building")
-        run_build(config, context, dockerfiles, credentials, metadata, env, events)
+        run_build(config, context, dockerfiles, credentials, metadata, env, events, root)
         digest = metadata_digest(metadata)
         size = image_size(config, digest)
     result = {"digest": digest, "size": size}

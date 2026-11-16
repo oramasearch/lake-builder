@@ -1,20 +1,44 @@
-"""Invoke the base image's daemonless helper and drain its progress output."""
+"""Run one ephemeral rootless BuildKit daemon, build through buildctl, and drain progress.
+
+The image is built on scratch, so there is no shell for upstream's buildctl-daemonless.sh.
+This module does the same work: start `rootlesskit buildkitd`, wait until buildctl can reach
+it, run the build, then stop the daemon.
+"""
 
 import os
 import selectors
 import signal
 import subprocess
+import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
 from .config import BuildError
 from .registry import registry_scheme
 
+# Upstream's BUILDCTL_CONNECT_RETRIES_MAX default; probes back off by 100 ms + 20 ms per try.
+DAEMON_RETRIES = 10
+DAEMON_LOG_LINES = 200
 
-def build_command(config, context, dockerfiles, metadata):
+
+def daemon_address(env):
+    runtime = env.get("XDG_RUNTIME_DIR", "")
+    if not runtime.startswith("/") or "\x00" in runtime or any(c.isspace() for c in runtime):
+        raise BuildError("XDG_RUNTIME_DIR must be an absolute path for rootless BuildKit")
+    return f"unix://{runtime.rstrip('/')}/buildkit/buildkitd.sock"
+
+
+def daemon_command(address, child_env):
+    # Word-split BUILDKITD_FLAGS exactly as the upstream helper's unquoted $BUILDKITD_FLAGS.
+    flags = child_env.get("BUILDKITD_FLAGS", "").split()
+    return ["rootlesskit", "buildkitd", *flags, f"--addr={address}"]
+
+
+def build_command(config, context, dockerfiles, metadata, address):
     insecure = ",registry.insecure=true" if registry_scheme(config) == "http" else ""
     command = [
-        "buildctl-daemonless.sh",
+        "buildctl",
+        f"--addr={address}",
         "build",
         "--frontend",
         "dockerfile.v0",
@@ -117,18 +141,73 @@ def terminate_group(process):
         process.wait()
 
 
-def run_build(config, context, dockerfiles, credentials, metadata, env, events):
-    command = build_command(config, context, dockerfiles, metadata)
+def start_daemon(address, child_env, log_path):
+    with open(log_path, "wb") as log:
+        try:
+            return subprocess.Popen(
+                daemon_command(address, child_env),
+                env=child_env,
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        except OSError as error:
+            raise BuildError("cannot start rootlesskit buildkitd") from error
+
+
+def report_daemon_log(log_path, events):
+    try:
+        lines = Path(log_path).read_bytes().splitlines()[-DAEMON_LOG_LINES:]
+    except OSError:
+        return
+    for line in lines:
+        events.log("buildkitd: " + line.decode("utf-8", errors="replace").rstrip("\r"))
+    events.flush(final=True)
+
+
+def daemon_ready(address, child_env):
+    try:
+        probe = subprocess.run(
+            ["buildctl", f"--addr={address}", "debug", "workers"],
+            env=child_env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+        )
+    except subprocess.TimeoutExpired:
+        return False
+    except OSError as error:
+        raise BuildError("cannot start buildctl") from error
+    return probe.returncode == 0
+
+
+def wait_for_daemon(daemon, address, child_env, log_path, events):
+    for attempt in range(DAEMON_RETRIES + 2):
+        code = daemon.poll()
+        if code is not None:
+            report_daemon_log(log_path, events)
+            raise BuildError(f"BuildKit daemon exited with status {code} before it was ready")
+        if daemon_ready(address, child_env):
+            return
+        time.sleep((100 + attempt * 20) / 1000)
+    report_daemon_log(log_path, events)
+    raise BuildError(f"BuildKit daemon was not ready after {DAEMON_RETRIES} retries")
+
+
+def run_client(command, child_env, events):
     try:
         process = subprocess.Popen(
             command,
-            env=child_environment(env, credentials, config),
+            env=child_env,
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             start_new_session=True,
         )
     except OSError as error:
-        raise BuildError("cannot start buildctl-daemonless.sh") from error
+        raise BuildError("cannot start buildctl") from error
     try:
         drain_output(process, events)
         code = process.wait()
@@ -138,3 +217,17 @@ def run_build(config, context, dockerfiles, credentials, metadata, env, events):
         if process.poll() is None:
             terminate_group(process)
         process.stdout.close()
+
+
+def run_build(config, context, dockerfiles, credentials, metadata, env, events, workdir):
+    address = daemon_address(env)
+    child_env = child_environment(env, credentials, config)
+    log_path = Path(workdir) / "buildkitd.log"
+    daemon = start_daemon(address, child_env, log_path)
+    try:
+        wait_for_daemon(daemon, address, child_env, log_path, events)
+        command = build_command(config, context, dockerfiles, metadata, address)
+        run_client(command, child_env, events)
+    finally:
+        if daemon.poll() is None:
+            terminate_group(daemon)
