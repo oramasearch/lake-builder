@@ -1,0 +1,299 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:50dadb0f-ae53-5eb9-b5e5-954177bde8fc",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-16T05:38:07Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "tools/sbom.py"
+        },
+        {
+          "type": "application",
+          "name": "syft"
+        }
+      ]
+    },
+    "supplier": {
+      "name": "OramaSearch, Inc."
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:github/moby/buildkit@v0.33.0?package-id=Component-BuildKit-1cec71bbc1ed0bc9",
+      "type": "library",
+      "name": "BuildKit",
+      "version": "v0.33.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:github/moby/buildkit@v0.33.0",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:github/astral-sh/python-build-standalone@3.12.16?package-id=Component-CPython-5ba1ea64eb58d736",
+      "type": "library",
+      "name": "CPython",
+      "version": "3.12.16",
+      "licenses": [
+        {
+          "expression": "Python-2.0 AND CNRI-Python"
+        }
+      ],
+      "purl": "pkg:github/astral-sh/python-build-standalone@3.12.16",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "DocumentRoot",
+      "type": "library",
+      "name": "lake-builder",
+      "version": "76ee3d66d5ac",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "Component-libbsd-2e51f80bf8b8dfc4",
+      "type": "library",
+      "name": "libbsd",
+      "version": "0.12.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "Component-libmd-e640fcd4c89c1447",
+      "type": "library",
+      "name": "libmd",
+      "version": "1.1.0",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND LicenseRef-Public-Domain"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:github/seccomp/libseccomp@v2.6.0?package-id=Component-libseccomp-902b21c9a0a8aa2e",
+      "type": "library",
+      "name": "libseccomp",
+      "version": "v2.6.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "LGPL-2.1-only"
+          }
+        }
+      ],
+      "purl": "pkg:github/seccomp/libseccomp@v2.6.0",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:docker/moby/buildkit@sha256%3A80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef?package-id=Image-moby-buildkit-4082ac4cb395beb3&tag=v0.33.0-rootless",
+      "type": "library",
+      "name": "moby/buildkit",
+      "version": "v0.33.0-rootless@sha256:80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef",
+      "purl": "pkg:docker/moby/buildkit@sha256%3A80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef?tag=v0.33.0-rootless",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "Component-Mozilla-CA-certificate-bundle-e7df5df975e6fe18",
+      "type": "library",
+      "name": "Mozilla CA certificate bundle",
+      "version": "20260611-r0",
+      "licenses": [
+        {
+          "expression": "MPL-2.0 AND MIT"
+        }
+      ]
+    },
+    {
+      "bom-ref": "Component-musl-3efbeb91db1e2f64",
+      "type": "library",
+      "name": "musl",
+      "version": "1.2.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:github/rootless-containers/rootlesskit@v3.0.1?package-id=Component-RootlessKit-3eceef5f289faba7",
+      "type": "library",
+      "name": "RootlessKit",
+      "version": "v3.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:github/rootless-containers/rootlesskit@v3.0.1",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:pypi/ruff@0.11.13?package-id=Package-python-ruff-9f25210d08cbeccd",
+      "type": "library",
+      "name": "ruff",
+      "version": "0.11.13",
+      "cpe": "cpe:2.3:a:python-ruff:python-ruff:0.11.13:*:*:*:*:*:*:*",
+      "purl": "pkg:pypi/ruff@0.11.13",
+      "properties": [
+        {
+          "name": "syft:package:language",
+          "value": "python"
+        },
+        {
+          "name": "syft:package:type",
+          "value": "python"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python-ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python-ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python_ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:python-ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:python_ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:python:ruff:0.11.13:*:*:*:*:*:*:*"
+        },
+        {
+          "name": "syft:cpe23",
+          "value": "cpe:2.3:a:ruff:ruff:0.11.13:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:github/opencontainers/runc@v1.4.3?package-id=Component-runc-74c464198b18416d",
+      "type": "library",
+      "name": "runc",
+      "version": "v1.4.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:github/opencontainers/runc@v1.4.3",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:github/shadow-maint/shadow@4.18.0?package-id=Component-shadow-3fcacfeaddeebab1",
+      "type": "library",
+      "name": "shadow",
+      "version": "4.18.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "purl": "pkg:github/shadow-maint/shadow@4.18.0",
+      "properties": [
+        {
+          "name": "syft:package:type",
+          "value": "UnknownPackage"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "DocumentRoot",
+      "dependsOn": [
+        "Component-Mozilla-CA-certificate-bundle-e7df5df975e6fe18",
+        "Component-libbsd-2e51f80bf8b8dfc4",
+        "Component-libmd-e640fcd4c89c1447",
+        "Component-musl-3efbeb91db1e2f64",
+        "pkg:docker/moby/buildkit@sha256%3A80b15f0735e87bab7bf59ec4d695dfb4a7cfb25521cf56dc75d6f256285b63ef?package-id=Image-moby-buildkit-4082ac4cb395beb3&tag=v0.33.0-rootless",
+        "pkg:github/astral-sh/python-build-standalone@3.12.16?package-id=Component-CPython-5ba1ea64eb58d736",
+        "pkg:github/moby/buildkit@v0.33.0?package-id=Component-BuildKit-1cec71bbc1ed0bc9",
+        "pkg:github/opencontainers/runc@v1.4.3?package-id=Component-runc-74c464198b18416d",
+        "pkg:github/rootless-containers/rootlesskit@v3.0.1?package-id=Component-RootlessKit-3eceef5f289faba7",
+        "pkg:github/seccomp/libseccomp@v2.6.0?package-id=Component-libseccomp-902b21c9a0a8aa2e",
+        "pkg:github/shadow-maint/shadow@4.18.0?package-id=Component-shadow-3fcacfeaddeebab1"
+      ]
+    }
+  ]
+}

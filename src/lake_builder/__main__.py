@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """One build per process; only the final result is written to stdout."""
 
 import json

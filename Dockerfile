@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1.7
+# SPDX-License-Identifier: MIT
+
 #
 # The image is scratch plus an allow-list of files; nothing else from the base reaches it.
 # docs/builder/image.md lists every file, where it comes from, its licence, and how to move a pin.

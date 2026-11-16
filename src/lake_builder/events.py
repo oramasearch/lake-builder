@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Best-effort lake events and bounded, credential-redacted log batches."""
 
 import base64

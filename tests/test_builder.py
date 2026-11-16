@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Exercise the CLI against real local HTTP and a controllable BuildKit process."""
 
 import base64

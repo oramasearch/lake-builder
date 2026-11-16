@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """Validate operator input before fetching source or starting BuildKit."""
 
 import json

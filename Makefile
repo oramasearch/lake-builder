@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 PYTHON ?= .venv/bin/python
 RUFF ?= .venv/bin/ruff
 
