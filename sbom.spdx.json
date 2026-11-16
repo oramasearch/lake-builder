@@ -2,17 +2,17 @@
   "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "lake-builder-7d846d12a85e",
-  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/7d846d12a85e8bbe90ca446adeefce503376e461",
+  "name": "lake-builder-a30adc72d3da",
+  "documentNamespace": "https://github.com/oramasearch/lake-builder/sbom/a30adc72d3dae85f465ae2472ed34e170d9a4bf4",
   "creationInfo": {
-    "created": "2026-11-16T06:08:01Z",
+    "created": "2026-11-16T06:10:05Z",
     "creators": [
       "Organization: OramaSearch, Inc.",
       "Tool: tools/sbom.py",
       "Tool: syft"
     ],
     "licenseListVersion": "3.29",
-    "comment": "Made from source commit 7d846d12a85e8bbe90ca446adeefce503376e461 by tools/sbom.py."
+    "comment": "Made from source commit a30adc72d3dae85f465ae2472ed34e170d9a4bf4 by tools/sbom.py."
   },
   "documentDescribes": [
     "SPDXRef-DocumentRoot"
@@ -61,7 +61,7 @@
     {
       "name": "lake-builder",
       "SPDXID": "SPDXRef-DocumentRoot",
-      "versionInfo": "7d846d12a85e",
+      "versionInfo": "a30adc72d3da",
       "downloadLocation": "git+https://github.com/oramasearch/lake-builder.git",
       "homepage": "https://github.com/oramasearch/lake-builder",
       "filesAnalyzed": false,
